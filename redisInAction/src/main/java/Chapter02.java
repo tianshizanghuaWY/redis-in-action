@@ -25,6 +25,9 @@ public class Chapter02 {
         testCacheRequest(conn);
     }
 
+    /*
+     * token 模拟
+     */
     public void testLoginCookies(Jedis conn)
         throws InterruptedException
     {
@@ -177,6 +180,10 @@ public class Chapter02 {
         return conn.hget("login:", token);
     }
 
+    /*
+     * 更新用户的授权token
+     * 有序队列 "recent:" 保存token
+     */
     public void updateToken(Jedis conn, String token, String user, String item) {
         long timestamp = System.currentTimeMillis() / 1000;
         conn.hset("login:", token, user);

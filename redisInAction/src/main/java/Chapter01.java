@@ -9,15 +9,15 @@ public class Chapter01 {
     private static final int ARTICLES_PER_PAGE = 25;
 
     public static void main(String[] args) {
-        new Chapter01().run();
-        //new Chapter01().test();
+        //new Chapter01().run();
+        new Chapter01().test();
     }
 
     public void test(){
         Jedis conn = new Jedis("localhost");
         conn.select(15);
 
-        conn.set("wy", "goood");
+        conn.set("a", "a");
         System.out.println(conn.get("wy"));
     }
 

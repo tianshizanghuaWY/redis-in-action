@@ -39,20 +39,20 @@ public class Chapter05 {
         Jedis conn = new Jedis("localhost");
         conn.select(15);
 
-        testLogRecent(conn);
+        //testLogRecent(conn);
         testLogCommon(conn);
-        testCounters(conn);
-        testStats(conn);
-        testAccessTime(conn);
-        testIpLookup(conn);
-        testIsUnderMaintenance(conn);
-        testConfig(conn);
+        //testCounters(conn);
+        //testStats(conn);
+        //testAccessTime(conn);
+        //testIpLookup(conn);
+        //testIsUnderMaintenance(conn);
+        //testConfig(conn);
     }
 
     public void testLogRecent(Jedis conn) {
         System.out.println("\n----- testLogRecent -----");
         System.out.println("Let's write a few logs to the recent log");
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 105; i++) {
             logRecent(conn, "test", "this is message " + i);
         }
         List<String> recent = conn.lrange("recent:test:info", 0, -1);
@@ -231,6 +231,10 @@ public class Chapter05 {
         logRecent(conn, name, message, INFO);
     }
 
+    /*
+     * 使用 队列存储最近的 100 条日志
+     * 按照 severity 维度存储
+     */
     public void logRecent(Jedis conn, String name, String message, String severity) {
         String destination = "recent:" + name + ':' + severity;
         Pipeline pipe = conn.pipelined();
@@ -243,6 +247,11 @@ public class Chapter05 {
         logCommon(conn, name, message, INFO, 5000);
     }
 
+    /*
+     * 存储最近一小时内的 常用 日志
+     * String: common:name:severity:start 存储最新常用日志的时间点
+     * String: common:name:severity:pstart 存储上一个时间点
+     */
     public void logCommon(
             Jedis conn, String name, String message, String severity, int timeout) {
         String commonDest = "common:" + name + ':' + severity;
@@ -250,7 +259,7 @@ public class Chapter05 {
         long end = System.currentTimeMillis() + timeout;
         while (System.currentTimeMillis() < end){
             conn.watch(startKey);
-            String hourStart = ISO_FORMAT.format(new Date());
+            String hourStart = ISO_FORMAT.format(new Date()); //精确到小时
             String existing = conn.get(startKey);
 
             Transaction trans = conn.multi();
